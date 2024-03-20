@@ -46,32 +46,20 @@ last_messages = {
 
 }
 
-
-def add_message(chat_id, kratnoe_number):
-    global messages_counter
-    if chat_id not in messages_counter:
-        messages_counter[chat_id] = 0
-    messages_counter[chat_id] += 1
-    if messages_counter[chat_id] % 5 == 0:  # Перевірка, чи кількість повідомлень кратна 5
-        return True
-    return False
-
-
 router = Router()
-
 
 @router.message()
 async def read_messages(message: types.Message) -> None:
     try:
         print(messages_counter)
-        chat_id=message.chat.id
+        chat_id = message.chat.id
         post = Post.objects.first()
         if chat_id not in messages_counter:
             messages_counter[chat_id] = 0
         messages_counter[chat_id] += 1
         if messages_counter[chat_id] % 5 == 0:  # Перевірка, чи кількість повідомлень кратна 5
             keyboard = InlineKeyboardBuilder()
-            buttons: list[Button] =  post.get_buttons()
+            buttons: list[Button] = post.get_buttons()
             for buttin in buttons:
                 keyboard.row(types.InlineKeyboardButton(text=f"{buttin.title}", url=buttin.url))
             mess = await message.bot.send_message(chat_id, text=post.title, reply_markup=keyboard.as_markup())
