@@ -26,7 +26,7 @@ class Post(models.Model):
         return self.title
 
     def get_buttons(self):
-        return self.button_set.all()
+        return self.button_set.all().order_by('priority')
 
 
 class Button(models.Model):
