@@ -32,7 +32,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.markdown import hbold
-from PromotionMaker.models import Post, Button
+from PromotionMaker.models import Post, Button, Chat
 
 # Bot token can be obtained via https://t.me/BotFather
 TOKEN = getenv("BOT_TOKEN")
@@ -48,16 +48,30 @@ last_messages = {
 
 router = Router()
 
+
 @router.message()
 async def read_messages(message: types.Message) -> None:
     try:
-        print(messages_counter)
         chat_id = message.chat.id
-        post = Post.objects.first()
         if chat_id not in messages_counter:
             messages_counter[chat_id] = 0
         messages_counter[chat_id] += 1
         if messages_counter[chat_id] % 5 == 0:  # Перевірка, чи кількість повідомлень кратна 5
+            # отримання інформації про чат в базі, перевірка чи він є в базі
+            db_chat = Chat.objects.filter(chat_id=chat_id).first()
+            # якщо є в базі то main_post буде збережено відповідний пост
+            # якщо нема чату, то буде збережено дефолт пост
+            main_post = None
+            if db_chat is None:
+                main_post = Post.objects.first()
+            else:
+                try:
+                    main_post = Post.objects.filter(chat_id=db_chat).first()
+                    if main_post is None:
+                        main_post = Post.objects.first()
+                except Exception as e:
+                    main_post = Post.objects.first()
+            post = main_post
             keyboard = InlineKeyboardBuilder()
             buttons: list[Button] = post.get_buttons()
             for buttin in buttons:
