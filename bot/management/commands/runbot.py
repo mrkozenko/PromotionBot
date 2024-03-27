@@ -1,6 +1,8 @@
 import asyncio
+import random
 import traceback
 
+from aiogram.methods import GetChatMember
 from asgiref.sync import sync_to_async
 from django.core.management.base import BaseCommand
 from aiogram import Bot, Dispatcher
@@ -27,9 +29,9 @@ import sys
 from os import getenv
 
 from aiogram import Bot, Dispatcher, Router, types
-from aiogram.enums import ParseMode
+from aiogram.enums import ParseMode, ChatMemberStatus
 from aiogram.filters import CommandStart
-from aiogram.types import Message
+from aiogram.types import Message, ChatInviteLink
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.markdown import hbold
 from PromotionMaker.models import Post, Button, Chat
@@ -49,9 +51,28 @@ last_messages = {
 router = Router()
 
 
+async def remove_message(message):
+    try:
+        if not message.from_user.is_bot:
+            is_subscribe = await message.bot(GetChatMember(chat_id=-1002085607318, user_id=message.from_user.id))
+            if is_subscribe.status is not ChatMemberStatus.CREATOR and is_subscribe.status is not ChatMemberStatus.MEMBER:
+                print("sss")
+                message_for_delete = await message.answer(
+                    f"""<a href="tg://user?id={message.from_user.id}">{message.from_user.full_name}</a>, щоб ваші повідомлення не видалялись будь-ласка підпишіться на чат: <a href="https://t.me/+0ghGVvJKFsIzNTk8">Тисни сюди щоб вступити в чат</a> .\n\n<b>Наша спільнота {message.chat.title} поступово розвивається, кількість повідомлень зростає, щоб відсіяти спам та ботів ми підключили функцію захисту - Вам достатньо вступити в чат вказаний в повідомленні,щоб ваші повідомлення перестали видалятися.</b>""",
+                    parse_mode=ParseMode.HTML)
+                waiting_time = random.randint(3, 10)
+                await asyncio.sleep(waiting_time)
+                await message.delete()
+                await asyncio.sleep(waiting_time)
+                await message_for_delete.delete()
+    except Exception as e:
+        print(e)
+
+
 @router.message()
 async def read_messages(message: types.Message) -> None:
     try:
+        task = asyncio.create_task(remove_message(message))
         chat_id = message.chat.id
         if chat_id not in messages_counter:
             messages_counter[chat_id] = 0
