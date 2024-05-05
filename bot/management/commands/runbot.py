@@ -5,7 +5,7 @@ import traceback
 from aiogram.methods import GetChatMember
 from asgiref.sync import sync_to_async
 from django.core.management.base import BaseCommand
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, filters
 from aiogram.client.session.middlewares.request_logging import logger
 from ChatModerator.settings import API_TOKEN
 from aiogram import Bot, Dispatcher
@@ -51,14 +51,15 @@ last_messages = {
 router = Router()
 
 
-async def remove_message(message):
+async def remove_message(message,chat_for_subscribe,subscribe_link):
     try:
-        if not message.from_user.is_bot:
-            is_subscribe = await message.bot(GetChatMember(chat_id=-1002085607318, user_id=message.from_user.id))
+
+        if not message.from_user.is_bot and chat_for_subscribe is not None:
+            is_subscribe = await message.bot(GetChatMember(chat_id=chat_for_subscribe, user_id=message.from_user.id))
             if is_subscribe.status is not ChatMemberStatus.CREATOR and is_subscribe.status is not ChatMemberStatus.MEMBER:
                 print("sss")
                 message_for_delete = await message.answer(
-                    f"""<a href="tg://user?id={message.from_user.id}">{message.from_user.full_name}</a>, щоб ваші повідомлення не видалялись будь-ласка підпишіться на чат: <a href="https://t.me/+0ghGVvJKFsIzNTk8">Тисни сюди щоб вступити в чат</a> .\n\n<b>Наша спільнота {message.chat.title} поступово розвивається, кількість повідомлень зростає, щоб відсіяти спам та ботів ми підключили функцію захисту - Вам достатньо вступити в чат вказаний в повідомленні,щоб ваші повідомлення перестали видалятися.</b>""",
+                    f"""<a href="tg://user?id={message.from_user.id}">{message.from_user.full_name}</a>, щоб ваші повідомлення не видалялись будь-ласка підпишіться на чат: <a href="{subscribe_link}">Тисни сюди щоб вступити в чат</a> .\n\n<b>Наша спільнота {message.chat.title} поступово розвивається, кількість повідомлень зростає, щоб відсіяти спам та ботів ми підключили функцію захисту - Вам достатньо вступити в чат вказаний в повідомленні,щоб ваші повідомлення перестали видалятися.</b>""",
                     parse_mode=ParseMode.HTML)
                 waiting_time = random.randint(3, 10)
                 await asyncio.sleep(waiting_time)
@@ -69,17 +70,27 @@ async def remove_message(message):
         print(e)
 
 
+# хендлер для виконання команд адміна
+
+
+
 @router.message()
 async def read_messages(message: types.Message) -> None:
     try:
-        task = asyncio.create_task(remove_message(message))
+        # підтримка відслідковування чату, де видаляється, аби змушувати підписувати саме на відповідний чат/канал
         chat_id = message.chat.id
+        db_chat = Chat.objects.filter(chat_id=chat_id).first()
+        print(db_chat)
+        if db_chat is not None:
+            community = db_chat.get_community_for_subscribe()
+            if community is not None:
+                task = asyncio.create_task(remove_message(message,community.subscribe_chat.chat_id,community.subscribe_link))
+
         if chat_id not in messages_counter:
             messages_counter[chat_id] = 0
         messages_counter[chat_id] += 1
         if messages_counter[chat_id] % 5 == 0:  # Перевірка, чи кількість повідомлень кратна 5
             # отримання інформації про чат в базі, перевірка чи він є в базі
-            db_chat = Chat.objects.filter(chat_id=chat_id).first()
             # якщо є в базі то main_post буде збережено відповідний пост
             # якщо нема чату, то буде збережено дефолт пост
             main_post = None
