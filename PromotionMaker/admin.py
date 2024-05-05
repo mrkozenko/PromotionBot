@@ -14,8 +14,11 @@ class PostAdmin(admin.ModelAdmin):
     inlines = [ButtonInline]
     list_display = ["title", "chat_id"]
 
+class SubscribeLinkAdmin(admin.ModelAdmin):
+    list_display = ["chat_id", "subscribe_link","subscribe_chat"]
+
 admin.site.register(Post, PostAdmin)
 
 admin.site.register(Button)
 admin.site.register(Chat)
-admin.site.register(SubscribeLink)
+admin.site.register(SubscribeLink,SubscribeLinkAdmin)
