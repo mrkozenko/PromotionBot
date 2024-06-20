@@ -58,7 +58,7 @@ class SubscribeLink(models.Model):
     # чат куди потрібно підписатись
     subscribe_chat = models.ForeignKey(Chat, on_delete=models.DO_NOTHING, verbose_name="Спільнота для підписки",
                                        related_name="subscribed_links")
-    subscribe_link = models.CharField(max_length=200, verbose_name="Посилання для підписки",default=" ")
+    subscribe_link = models.CharField(max_length=200, verbose_name="Посилання для підписки", default=" ")
 
     class Meta:
         verbose_name = "Підписку"
@@ -66,3 +66,18 @@ class SubscribeLink(models.Model):
 
     def __str__(self):
         return self.subscribe_link
+
+
+class PromotionPost(models.Model):
+    # автоматизація публікації оголошень
+    class Meta:
+        verbose_name = "Рекламний пост"
+        verbose_name_plural = "Рекламні пости"
+    # чат де будуть просити підписку
+    # додає користувач
+    chat_id = models.ForeignKey(Chat, on_delete=models.DO_NOTHING, verbose_name="Чат для реклами", null=True,blank=True,
+                                related_name="promotion_posts")
+    end_date_promotion = models.DateField(verbose_name="Дата завершення постингу",null=True)
+    # додає алгоритм
+    message_id = models.IntegerField(verbose_name="ID повідомлення поста реклами")
+    chat_message_id = models.IntegerField(verbose_name="ID чату реклами")

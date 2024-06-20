@@ -24,6 +24,7 @@ env = Env()
 env.read_env()
 
 API_TOKEN = env.str("API_TOKEN")
+PROMOTER_TOKEN = env.str("API_TOKEN")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -31,7 +32,7 @@ API_TOKEN = env.str("API_TOKEN")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-+xl!wvit#f7571)-yj^x^pa@)qws7$fx@tkulq(9-*o3q+hm_&'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don't runhttps://t.me/PTonNotificatorbot with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]

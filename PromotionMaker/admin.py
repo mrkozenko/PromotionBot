@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
 
-from .models import Post, Button, Chat, SubscribeLink
+from .models import Post, Button, Chat, SubscribeLink, PromotionPost
 
 
 # Register your models here.
@@ -17,8 +17,12 @@ class PostAdmin(admin.ModelAdmin):
 class SubscribeLinkAdmin(admin.ModelAdmin):
     list_display = ["chat_id", "subscribe_link","subscribe_chat"]
 
+class PromotionPostAdmin(admin.ModelAdmin):
+    list_display = ["chat_id", "end_date_promotion","message_id"]
+
 admin.site.register(Post, PostAdmin)
 
 admin.site.register(Button)
 admin.site.register(Chat)
 admin.site.register(SubscribeLink,SubscribeLinkAdmin)
+admin.site.register(PromotionPost,PromotionPostAdmin)
