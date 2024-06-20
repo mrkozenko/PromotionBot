@@ -24,7 +24,6 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message, ChatInviteLink
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.markdown import hbold
-from fuzzywuzzy import fuzz
 
 from PromotionMaker.models import Post, Button, Chat, PromotionPost,SpamFilterModel
 from ChatModerator.settings import API_TOKEN,PROMOTER_TOKEN
