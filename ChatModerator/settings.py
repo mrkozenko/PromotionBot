@@ -24,7 +24,7 @@ env = Env()
 env.read_env()
 
 API_TOKEN = env.str("API_TOKEN")
-PROMOTER_TOKEN = env.str("API_TOKEN")
+PROMOTER_TOKEN = env.str("PROMOTER_TOKEN")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
