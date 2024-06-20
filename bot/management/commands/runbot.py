@@ -166,11 +166,17 @@ async def spam_filter_search(message):
                 except_ids__contains=str(message.from_user.id)
             ).exists()
             if not exists_exception_user:
-                mess_warning = await message.reply("Воу, схоже, що ваше оголошення підпадає під категорію платних та буде видалено:\nНа платній основі публікуються:\n- Реклама магазинів, ресторанів та послуг.\n- Продажі.\n- Верифікації.\n- Брачка, вебкам,офіси.\n- Оренда акаунтів.\nРекомендуємо звернутися до адміністратора стосовно купівлі реклами.")
+                mess_warning = await bot_helper_promoter.send_message(chat_id=message.chat.id,text="Воу, схоже, що ваше оголошення підпадає під категорію платних та буде видалено:\nНа платній основі публікуються:\n- Реклама магазинів, ресторанів та послуг.\n- Продажі.\n- Верифікації.\n- Брачка, вебкам,офіси.\n- Оренда акаунтів.\nРекомендуємо звернутися до адміністратора стосовно купівлі реклами.",reply_to_message_id=message.message_id)
                 await asyncio.sleep(15)
-                await message.delete()
+                try:
+                    await message.delete()
+                except Exception as e:
+                    pass
                 await asyncio.sleep(3)
-                await bot_helper_promoter.delete_message(mess_warning.chat.id,mess_warning.message_id)
+                try:
+                    await bot_helper_promoter.delete_message(mess_warning.chat.id,mess_warning.message_id)
+                except Exception as e:
+                    print(e)
     except Exception as e:
         print(e)
 @router.channel_post()
