@@ -1,5 +1,6 @@
 import asyncio
 import random
+import re
 import traceback
 from datetime import datetime
 
@@ -23,6 +24,8 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message, ChatInviteLink
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.markdown import hbold
+from fuzzywuzzy import fuzz
+
 from PromotionMaker.models import Post, Button, Chat, PromotionPost,SpamFilterModel
 from ChatModerator.settings import API_TOKEN,PROMOTER_TOKEN
 from aiogram import Bot, Dispatcher
@@ -45,6 +48,9 @@ TOKEN = getenv("BOT_TOKEN")
 bot_helper_promoter = Bot(PROMOTER_TOKEN)
 # All handlers should be attached to the Router (or Dispatcher)
 dp = Dispatcher()
+last_promotion_post = {
+
+}
 messages_counter = {
 
 }
@@ -108,6 +114,16 @@ async def publish_buttons_post(message, db_chat, chat_id):
 async def publish_promotion_posts(message, db_chat):
     # для публікації реклами
     try:
+        try:
+            for i in last_promotion_post.get(message.chat.id,[]):
+                try:
+                    print(i)
+                    await bot_helper_promoter.delete_message(chat_id=message.chat.id, message_id=i)
+                except Exception as e:
+                    print(e)
+        except Exception as e:
+            print(e)
+            pass
         if db_chat is not None:
             now = datetime.now()
             promotion_posts = PromotionPost.objects.filter(
@@ -117,7 +133,9 @@ async def publish_promotion_posts(message, db_chat):
             for post in promotion_posts:
                 print(post)
                 try:
-                    await bot_helper_promoter.forward_message(message.chat.id,post.chat_message_id,post.message_id)
+                    mess = await bot_helper_promoter.forward_message(message.chat.id,post.chat_message_id,post.message_id)
+                    last_promotion_post[message.chat.id] = last_promotion_post.get(message.chat.id, [])
+                    last_promotion_post[message.chat.id].append(mess.message_id)
                 except Exception as e:
                     print(e)
                     pass
@@ -131,14 +149,15 @@ async def spam_filter_search(message):
     #пошук та порівняння повідомлень на наявність заборонених слів
     try:
 
-        words = message.text.split()
-        words = [word.lower() for word in words]
+        words = message.text.lower().split()
 
         query = Q()
-        print(words)
-        # Добавляем условия для каждого слова
+
+        # Добавляем условия для каждого слова с использованием регулярных выражений
         for word in words:
-            query |= Q(black_words__icontains=word)
+            # Создаем регулярное выражение для точного совпадения слова целиком
+            regex = fr"\b{re.escape(word)}\b"
+            query |= Q(black_words__iregex=regex)
 
         # Выполняем запрос и проверяем наличие записей
         exists_bad_word = SpamFilterModel.objects.filter(query).exists()
@@ -148,8 +167,10 @@ async def spam_filter_search(message):
                 except_ids__contains=str(message.from_user.id)
             ).exists()
             if not exists_exception_user:
+                mess_warning = await message.reply("Воу, схоже, що ваше оголошення підпадає під категорію платних та буде видалено:\nНа платній основі публікуються:\n- Реклама магазинів, ресторанів та послуг.\n- Продажі.\n- Верифікації.\n- Брачка, вебкам,офіси.\n- Оренда акаунтів.\nРекомендуємо звернутися до адміністратора стосовно купівлі реклами.")
                 await asyncio.sleep(15)
                 await message.delete()
+                await mess_warning.delete()
 
     except Exception as e:
         print(e)
