@@ -169,8 +169,8 @@ async def spam_filter_search(message):
                 mess_warning = await message.reply("Воу, схоже, що ваше оголошення підпадає під категорію платних та буде видалено:\nНа платній основі публікуються:\n- Реклама магазинів, ресторанів та послуг.\n- Продажі.\n- Верифікації.\n- Брачка, вебкам,офіси.\n- Оренда акаунтів.\nРекомендуємо звернутися до адміністратора стосовно купівлі реклами.")
                 await asyncio.sleep(15)
                 await message.delete()
-                await mess_warning.delete()
-
+                await asyncio.sleep(3)
+                await bot_helper_promoter.delete_message(mess_warning.chat.id,mess_warning.message_id)
     except Exception as e:
         print(e)
 @router.channel_post()
