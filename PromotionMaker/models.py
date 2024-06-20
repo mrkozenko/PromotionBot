@@ -73,11 +73,23 @@ class PromotionPost(models.Model):
     class Meta:
         verbose_name = "Рекламний пост"
         verbose_name_plural = "Рекламні пости"
+
     # чат де будуть просити підписку
     # додає користувач
-    chat_id = models.ForeignKey(Chat, on_delete=models.DO_NOTHING, verbose_name="Чат для реклами", null=True,blank=True,
+    chat_id = models.ForeignKey(Chat, on_delete=models.DO_NOTHING, verbose_name="Чат для реклами", null=True,
+                                blank=True,
                                 related_name="promotion_posts")
-    end_date_promotion = models.DateField(verbose_name="Дата завершення постингу",null=True)
+    end_date_promotion = models.DateField(verbose_name="Дата завершення постингу", null=True)
     # додає алгоритм
     message_id = models.IntegerField(verbose_name="ID повідомлення поста реклами")
     chat_message_id = models.IntegerField(verbose_name="ID чату реклами")
+
+
+class SpamFilterModel(models.Model):
+    # автоматизація видалення заборонених слів
+    class Meta:
+        verbose_name = "Спам-фільтр"
+        verbose_name_plural = "Спам-фільтри"
+
+    black_words = models.CharField(max_length=1000, verbose_name="Заборонені слова")
+    except_ids = models.CharField(max_length=1000, verbose_name="ID рекламодавців виключень")

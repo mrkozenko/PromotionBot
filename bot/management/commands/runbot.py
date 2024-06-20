@@ -23,7 +23,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message, ChatInviteLink
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.markdown import hbold
-from PromotionMaker.models import Post, Button, Chat, PromotionPost
+from PromotionMaker.models import Post, Button, Chat, PromotionPost,SpamFilterModel
 from ChatModerator.settings import API_TOKEN,PROMOTER_TOKEN
 from aiogram import Bot, Dispatcher
 from aiogram.enums.parse_mode import ParseMode
@@ -127,8 +127,32 @@ async def publish_promotion_posts(message, db_chat):
         print(e)
         pass
 
+async def spam_filter_search(message):
+    #пошук та порівняння повідомлень на наявність заборонених слів
+    try:
 
+        words = message.text.split()
+        words = [word.lower() for word in words]
 
+        query = Q()
+        print(words)
+        # Добавляем условия для каждого слова
+        for word in words:
+            query |= Q(black_words__icontains=word)
+
+        # Выполняем запрос и проверяем наличие записей
+        exists_bad_word = SpamFilterModel.objects.filter(query).exists()
+        if exists_bad_word:
+            print("Spam filter")
+            exists_exception_user = SpamFilterModel.objects.filter(
+                except_ids__contains=str(message.from_user.id)
+            ).exists()
+            if not exists_exception_user:
+                await asyncio.sleep(15)
+                await message.delete()
+
+    except Exception as e:
+        print(e)
 @router.channel_post()
 async def set_new_channel_message(message: types.Message) -> None:
     # парсим отсюда, сейвим айди поста и сохраняем в бд,
@@ -139,6 +163,7 @@ async def set_new_channel_message(message: types.Message) -> None:
 @router.message()
 async def read_messages(message: types.Message) -> None:
     try:
+        spamfilterCall = asyncio.create_task(spam_filter_search(message))
         # підтримка відслідковування чату, де видаляється, аби змушувати підписувати саме на відповідний чат/канал
         chat_id = message.chat.id
         db_chat = Chat.objects.filter(chat_id=chat_id).first()
