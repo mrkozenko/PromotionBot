@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
 
-from .models import Post, Button, Chat, SubscribeLink, PromotionPost,SpamFilterModel
+from .models import Post, Button, Chat, SubscribeLink, PromotionPost, SpamFilterModel, InviteToChatModel
 
 
 # Register your models here.
@@ -23,6 +23,10 @@ class PromotionPostAdmin(admin.ModelAdmin):
 class SpamFilterModelAdmin(admin.ModelAdmin):
     list_display = ["black_words", "except_ids"]
 
+class InviteToChatModelAdmin(admin.ModelAdmin):
+    list_display = ["chat_id", "username","is_invited"]
+    list_filter = ["chat_id__title", "is_invited"]
+
 admin.site.register(Post, PostAdmin)
 
 admin.site.register(Button)
@@ -30,3 +34,4 @@ admin.site.register(Chat)
 admin.site.register(SubscribeLink,SubscribeLinkAdmin)
 admin.site.register(PromotionPost,PromotionPostAdmin)
 admin.site.register(SpamFilterModel,SpamFilterModelAdmin)
+admin.site.register(InviteToChatModel,InviteToChatModelAdmin)

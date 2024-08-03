@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Паблік пейдж</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container form-container">
+    <h1 class="text-center mb-4">Завантаження користувачів до БД для майбутнього додавання в чати</h1>
+    <form method="post" action="{% url 'index' %}" id="inviteform">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="chat">Чат для інвайту</label>
+            <select id="chat_select" name="chat_select" class="form-control">
+                <option class="disabled" value="">Оберіть чат</option>
+                <!-- Примітка: Замініть цей фрагмент на ваш код для генерації опцій -->
+                {% for chat in chats %}
+                    <option value="{{ chat.chat_id }}">{{ chat.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="users-db">Користувачі</label>
+            <textarea id="users" class="form-control"  name="users" rows="5"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Надіслати</button>
+    </form>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

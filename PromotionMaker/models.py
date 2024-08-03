@@ -93,3 +93,17 @@ class SpamFilterModel(models.Model):
 
     black_words = models.CharField(max_length=1000, verbose_name="Заборонені слова")
     except_ids = models.CharField(max_length=1000, verbose_name="ID рекламодавців виключень")
+
+
+class InviteToChatModel(models.Model):
+    class Meta:
+        verbose_name = "Інвайт в чат"
+        verbose_name_plural = "Інвайти в чат"
+
+    chat_id = models.ForeignKey(Chat, on_delete=models.DO_NOTHING, verbose_name="Чат інвайту", null=True,
+                                blank=True,
+                                related_name="invite_to_chat")
+    username = models.CharField(max_length=500,verbose_name="Нікнейм юзера")
+
+    is_invited = models.BooleanField( null=True,
+                                blank=True,default=False)
