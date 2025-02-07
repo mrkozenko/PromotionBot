@@ -228,6 +228,7 @@ async def set_new_channel_message(message: types.Message) -> None:
 @router.message()
 async def read_messages(message: types.Message) -> None:
     try:
+
         spamfilterCall = asyncio.create_task(spam_filter_search(message))
         # підтримка відслідковування чату, де видаляється, аби змушувати підписувати саме на відповідний чат/канал
         chat_id = message.chat.id
@@ -260,7 +261,13 @@ async def runner() -> None:
     bot = Bot(API_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp.include_router(router)
     # And the run events dispatching
-    await dp.start_polling(bot,allowed_updates=["chat_member"])
+    await dp.start_polling(bot,allowed_updates=[   "chat_member",  # оновлення про учасників чату
+    "message",      # звичайні повідомлення
+    "edited_message",  # редаговані повідомлення
+    "channel_post",    # пости в каналах
+    "callback_query",  # натискання на інлайн кнопки
+    "inline_query"    # інлайн запити
+    ])
 
 
 def main():
