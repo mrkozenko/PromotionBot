@@ -67,11 +67,21 @@ async def remove_message(message, chat_for_subscribe, subscribe_link):
 
         if not message.from_user.is_bot and chat_for_subscribe is not None:
             is_subscribe = await message.bot(GetChatMember(chat_id=chat_for_subscribe, user_id=message.from_user.id))
-            if is_subscribe.status is not ChatMemberStatus.CREATOR and is_subscribe.status is not ChatMemberStatus.MEMBER:
+            print(chat_for_subscribe)
+            print(is_subscribe)
+            if is_subscribe.status!="creator" and is_subscribe.status!="member" and is_subscribe.status!="restricted":
                 print("sss")
+                keyboard = InlineKeyboardBuilder()
+                keyboard.row(types.InlineKeyboardButton(text=f"Спільнота для підписки", url=subscribe_link))
                 message_for_delete = await message.answer(
-                    f"""<a href="tg://user?id={message.from_user.id}">{message.from_user.full_name}</a>, щоб ваші повідомлення не видалялись будь-ласка підпишіться на чат: <a href="{subscribe_link}">Тисни сюди щоб вступити в чат</a> .\n\n<b>Наша спільнота {message.chat.title} поступово розвивається, кількість повідомлень зростає, щоб відсіяти спам та ботів ми підключили функцію захисту - Вам достатньо вступити в чат вказаний в повідомленні,щоб ваші повідомлення перестали видалятися.</b>""",
-                    parse_mode=ParseMode.HTML)
+                    f"""{message.from_user.full_name}, щоб ваші повідомлення не видалялися, просто приєднайтесь до нашого чату!  
+<a href="{subscribe_link}">✅ Тисни сюди щоб вступити в чат</a>  
+
+🔹 Наша спільнота {message.chat.title} постійно зростає, і щоб уникнути спаму та ботів, ми ввели простий захист.  
+
+<b>Все, що потрібно – це приєднатися до чату, і ваші повідомлення більше не будуть видалятися. Долучайся та будь у курсі всіх новин!</b>""",
+                    parse_mode=ParseMode.HTML, reply_markup=keyboard.as_markup())
+
                 waiting_time = random.randint(15, 35)
                 await asyncio.sleep(waiting_time)
                 await message.delete()
