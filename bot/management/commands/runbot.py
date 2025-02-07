@@ -74,7 +74,7 @@ async def remove_message(message, chat_for_subscribe, subscribe_link):
                 keyboard = InlineKeyboardBuilder()
                 keyboard.row(types.InlineKeyboardButton(text=f"Спільнота для підписки", url=subscribe_link))
                 message_for_delete = await message.answer(
-                    f"""{message.from_user.full_name}, щоб ваші повідомлення не видалялися, просто приєднайтесь до нашого чату!  
+                    f"""{message.from_user.full_name}, щоб ваші повідомлення не видалялися, просто приєднайтесь до вказаного в повідомленні чату!  
 <a href="{subscribe_link}">✅ Тисни сюди щоб вступити в чат</a>  
 
 🔹 Наша спільнота {message.chat.title} постійно зростає, і щоб уникнути спаму та ботів, ми ввели простий захист.  
